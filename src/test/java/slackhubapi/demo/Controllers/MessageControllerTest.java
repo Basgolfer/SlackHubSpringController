@@ -2,6 +2,8 @@ package slackhubapi.demo.Controllers;
 
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 import slackhubapi.demo.Models.*;
 import slackhubapi.demo.Repositories.*;
 import org.junit.Test;
@@ -21,6 +23,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -63,7 +66,12 @@ public class MessageControllerTest {
 
     @Test
     public void createMessage() throws Exception {
-        Mockito.when(messageController.createMessage(Mockito.any(Message.class))).thenReturn(new ResponseEntity<>(HttpStatus.CREATED));
+        URI location = UriComponentsBuilder.fromHttpUrl("http://localhost:8080/messages").build().toUri();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setLocation(location);
+
+        Mockito.when(messageController.createMessage(Mockito.any(Message.class))).thenReturn(new ResponseEntity<>(mockMessage, responseHeaders, HttpStatus.CREATED));
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/messages")
         .accept(MediaType.APPLICATION_JSON).content(mockMessageJson).contentType(MediaType.APPLICATION_JSON);
@@ -72,9 +80,6 @@ public class MessageControllerTest {
         MockHttpServletResponse response = result.getResponse();
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
         assertEquals("http://localhost:8080/messages", response.getHeader(HttpHeaders.LOCATION));
-
-
-
     }
 
     @Test

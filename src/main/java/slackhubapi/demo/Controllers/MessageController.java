@@ -6,10 +6,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import slackhubapi.demo.Models.Message;
 import slackhubapi.demo.Repositories.MessageRepository;
-
 import java.net.URI;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class MessageController {
     public ResponseEntity<Message> createMessage(@RequestBody Message message){
         messageRepository.saveAndFlush(message);
 
-        URI location = UriComponentsBuilder.fromPath("http://localhost:8080/messages").build().toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setLocation(location);
