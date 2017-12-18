@@ -2,9 +2,15 @@ package slackhubapi.demo.Controllers;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 import slackhubapi.demo.Models.Message;
 import slackhubapi.demo.Repositories.MessageRepository;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -19,8 +25,15 @@ public class MessageController {
     }
 
     @RequestMapping(value = "messages", method = RequestMethod.POST)
-    public Message createMessage(@RequestBody Message message){
-        return messageRepository.saveAndFlush(message);
+    public ResponseEntity<Message> createMessage(@RequestBody Message message){
+        messageRepository.saveAndFlush(message);
+
+        URI location = UriComponentsBuilder.fromPath("http://localhost:8080/messages").build().toUri();
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setLocation(location);
+
+        return new ResponseEntity<>(message, responseHeaders, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "messages/{messageId}", method = RequestMethod.GET)

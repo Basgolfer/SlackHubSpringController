@@ -15,6 +15,10 @@ public class Message {
     private Date messageTimeStamp;
     private Long userId; //Id of the user that created the message.
 
+    public Message() {
+
+    }
+
     public Message(Long messageId, String message, Date messageTimeStamp, Long userId) {
         this.messageId = messageId;
         this.message = message;
