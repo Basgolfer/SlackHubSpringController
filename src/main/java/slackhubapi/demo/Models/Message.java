@@ -1,18 +1,19 @@
 package slackhubapi.demo.Models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column
     private Long messageId;
+    @Column
     private String message;
+    @Column
     private Date messageTimeStamp;
+    @Column
     private Long userId; //Id of the user that created the message.
 
     public Message() {

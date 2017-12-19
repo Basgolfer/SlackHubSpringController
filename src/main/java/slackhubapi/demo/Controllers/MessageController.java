@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import slackhubapi.demo.Models.Message;
 import slackhubapi.demo.Repositories.MessageRepository;
+
+import javax.xml.ws.Response;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -19,8 +22,12 @@ public class MessageController {
     private MessageRepository messageRepository;
 
     @RequestMapping(value = "messages", method = RequestMethod.GET)
-    public List<Message> listAllMessages(){
-        return messageRepository.findAll();
+    public ResponseEntity<List<Message>>listAllMessages(){
+        List<Message> allMessages =  messageRepository.findAll();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setLocation(location);
+        return new ResponseEntity<>(allMessages, responseHeaders, HttpStatus.OK);
     }
 
     @RequestMapping(value = "messages", method = RequestMethod.POST)
