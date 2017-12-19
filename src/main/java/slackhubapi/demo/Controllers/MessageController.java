@@ -21,7 +21,7 @@ public class MessageController {
     @Autowired
     private MessageRepository messageRepository;
 
-    @RequestMapping(value = "messages", method = RequestMethod.GET)
+    @RequestMapping(value = "/messages", method = RequestMethod.GET)
     public ResponseEntity<List<Message>>listAllMessages(){
         List<Message> allMessages =  messageRepository.findAll();
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
@@ -30,11 +30,14 @@ public class MessageController {
         return new ResponseEntity<>(allMessages, responseHeaders, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "messages", method = RequestMethod.POST)
-    public ResponseEntity<Message> createMessage(@RequestBody Message message){
-        messageRepository.saveAndFlush(message);
+    @RequestMapping(value = "/messages", method = RequestMethod.POST)
+    public ResponseEntity<Message> createMessage(@RequestBody Message newMessage){
+        Message message = messageRepository.saveAndFlush(newMessage);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(message.getMessageId()).toUri();
 
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setLocation(location);
@@ -42,23 +45,28 @@ public class MessageController {
         return new ResponseEntity<>(message, responseHeaders, HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "messages/{messageId}", method = RequestMethod.GET)
-    public Message getMessageById(@PathVariable Long messageId){
-        return messageRepository.findOne(messageId);
+    @RequestMapping(value = "/messages/{messageId}", method = RequestMethod.GET)
+    public ResponseEntity<Message> getMessageById(@PathVariable Long messageId){
+        Message messageToReturn = messageRepository.findOne(messageId);
+        if (messageToReturn == null) {
+            return new ResponseEntity<>( HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(messageToReturn, HttpStatus.FOUND);
     }
 
-    @RequestMapping(value = "messages/{messageId}", method = RequestMethod.PUT)
-    public Message updateMessageById(@PathVariable Long messageId, @RequestBody Message message) {
-        Message existingMessage = getMessageById(messageId);
+    @RequestMapping(value = "/messages/{messageId}", method = RequestMethod.PUT)
+    public ResponseEntity<Message> updateMessageById(@PathVariable Long messageId, @RequestBody Message message) {
+        Message existingMessage = getMessageById(messageId).getBody();
         BeanUtils.copyProperties(message, existingMessage);
-        return messageRepository.saveAndFlush(existingMessage);
+        messageRepository.saveAndFlush(existingMessage);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
-
-    @RequestMapping(value = "messages/{messageId}", method = RequestMethod.DELETE)
-    public Message deleteMessageById(@PathVariable Long messageId) {
-        Message existingMessage = getMessageById(messageId);
-        messageRepository.delete(existingMessage);
-        return existingMessage;
-    }
+//
+//    @RequestMapping(value = "messages/{messageId}", method = RequestMethod.DELETE)
+//    public Message deleteMessageById(@PathVariable Long messageId) {
+//        Message existingMessage = getMessageById(messageId);
+//        messageRepository.delete(existingMessage);
+//        return existingMessage;
+//    }
 }
 
